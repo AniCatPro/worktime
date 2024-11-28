@@ -1,32 +1,36 @@
-//
-//  worktimeApp.swift
-//  worktime
-//
-//  Created by Павел Афанасьев on 28.11.2024.
-//
+// worktimeApp.swift
+// Created by Павел Афанасьев on 28.11.2024.
 
 import SwiftUI
 import SwiftData
 
 @main
-struct worktimeApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+struct WorktimeApp: App {
+    @State private var isWindowVisible = true
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    init() {
+        NSApplication.shared.setActivationPolicy(.accessory)
+    }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear {
+                    isWindowVisible = true
+                    NSApplication.shared.activate(ignoringOtherApps: true)
+                }
+                .onDisappear {
+                    isWindowVisible = false
+                }
+                .frame(width: 300, height: 250)
         }
-        .modelContainer(sharedModelContainer)
+        .windowStyle(.hiddenTitleBar)
+        .commands {
+            CommandGroup(replacing: .appTermination) {
+                Button("Quit") {
+                    NSApplication.shared.terminate(self)
+                }
+            }
+        }
     }
 }
